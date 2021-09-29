@@ -73,6 +73,8 @@ h1 {
 
 .yearChart{
     stroke: #FFF;
+    r: 5;
+    cy: 5;
 }
 
 .lineChart{
@@ -102,7 +104,7 @@ h1 {
 
 .highlighted{
     stroke: #404040;;
-    stroke-width:4;
+    stroke-width:2;
 }
 
 .brush .selection {
@@ -188,5 +190,6 @@ h3{
     text-anchor:middle;
     font-size: 32px;
 }
+
 
 

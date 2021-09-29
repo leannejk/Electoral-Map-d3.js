@@ -85,14 +85,52 @@ YearChart.prototype.update = function(){
     //HINT: Use the .yearChart class to style your circle elements
     //HINT: Use the chooseClass method to choose the color corresponding to the winning party.
 
+    var svg = self.svg
+    var group = svg.append("g").attr("transform", "translate(" + (self.margin.left) + "," + self.margin.top + ")");
+    group.selectAll("circle")
+        .data(self.electionWinners)
+        .enter().append("circle")
+        .attr("class", "yearChart")
+        .attr("class", function(d){return self.chooseClass(d.PARTY) })
+        .attr("r", 5)
+        .attr("cx", function (d, i){ return i * 50 ; })
+        .attr("cy", 5)
+        .attr("stroke", "black");
+
+
+
     //Append text information of each year right below the corresponding circle
     //HINT: Use .yeartext class to style your text elements
+    group.selectAll("text")
+        .data(self.electionWinners)
+        .enter().append("text")
+        .attr("x", function (d, i){ return i * 50 ; })
+        .attr("y", 50)
+        .attr("font-size", "smaller")
+        .attr("class", "yeartext")
+        .text(function(d){return d.YEAR});
 
     //Style the chart by adding a dashed line that connects all these years.
     //HINT: Use .lineChart to style this dashed line
+    group.selectAll("line")
+        .data(self.electionWinners)
+        .enter().append("line")
+        .attr("x1", function (d, i){ return i * 50 + 3.2; })
+        .attr("y1", 5)
+        .attr("x2", function (d, i){ return (i + 1) * 50 - 3; })
+        .attr("y2", 5)
+        .attr("class", "lineChart")
 
     //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
     //HINT: Use .highlighted class to style the highlighted circle
+    var circles = document.getElementsByTagName("circle");
+    for(i = 0; i < circles.length; i++){
+        circles[i].addEventListener("click", function (){
+            this.setAttribute("class", "highlighted");
+            //update rest of visualization
+        });
+    }
+
 
     //Election information corresponding to that year should be loaded and passed to
     // the update methods of other visualizations
