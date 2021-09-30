@@ -76,8 +76,7 @@ YearChart.prototype.update = function(){
             .then(function(electionResults) {
                 self.electoralVoteChart.update(electionResults, self.colorScale);
                 self.tileChart.update(electionResults, self.colorScale);
-                self.votePercentageChart.update(electionResults, self.colorScale);
-                self.electionWinners.update(electionResults, self.colorScale);
+                self.votePercentageChart.update(electionResults);
             });
 
 
