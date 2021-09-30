@@ -62,7 +62,27 @@ YearChart.prototype.chooseClass = function (party) {
  */
 YearChart.prototype.update = function(){
     var self = this;
-    var clicked = null;
+    var clicked = function (node) {
+        //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
+        //HINT: Use .highlighted class to style the highlighted circle
+        node.setAttribute("class", "highlighted");
+        var year = String(node.YEAR);
+        var address = "data/election-results-" + year + ".csv"
+
+        //Election information corresponding to that year should be loaded and passed to
+        // the update methods of other visualizations
+
+        d3.csv(address)
+            .then(function(electionResults) {
+                self.electoralVoteChart.update(electionResults, self.colorScale);
+                self.tileChart.update(electionResults, self.colorScale);
+                self.votePercentageChart.update(electionResults, self.colorScale);
+                self.electionWinners.update(electionResults, self.colorScale);
+            });
+
+
+
+    }
 
     //Domain definition for global color scale
     var domain = [-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60 ];
@@ -90,24 +110,19 @@ YearChart.prototype.update = function(){
     group.selectAll("circle")
         .data(self.electionWinners)
         .enter().append("circle")
-        .attr("class", "yearChart")
-        .attr("class", function(d){return self.chooseClass(d.PARTY) })
-        .attr("r", 5)
         .attr("cx", function (d, i){ return i * 50 ; })
-        .attr("cy", 5)
-        .attr("stroke", "black");
-
-
+        .attr("class", function(d){return String(self.chooseClass(d.PARTY))})
+        .classed("yearChart", true)
+        // .attr("onClick", clicked(this))
 
     //Append text information of each year right below the corresponding circle
     //HINT: Use .yeartext class to style your text elements
-    group.selectAll("text")
+    svg.selectAll("text")
         .data(self.electionWinners)
         .enter().append("text")
-        .attr("x", function (d, i){ return i * 50 ; })
+        .attr("x", function (d, i){ return i * 50 + self.margin.left - 15 ; })
         .attr("y", 50)
-        .attr("font-size", "smaller")
-        .attr("class", "yeartext")
+        .attr("class", "yaertext")
         .text(function(d){return d.YEAR});
 
     //Style the chart by adding a dashed line that connects all these years.
@@ -119,21 +134,8 @@ YearChart.prototype.update = function(){
         .attr("y1", 5)
         .attr("x2", function (d, i){ return (i + 1) * 50 - 3; })
         .attr("y2", 5)
-        .attr("class", "lineChart")
+        .classed("lineChart", true)
 
-    //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
-    //HINT: Use .highlighted class to style the highlighted circle
-    var circles = document.getElementsByTagName("circle");
-    for(i = 0; i < circles.length; i++){
-        circles[i].addEventListener("click", function (){
-            this.setAttribute("class", "highlighted");
-            //update rest of visualization
-        });
-    }
-
-
-    //Election information corresponding to that year should be loaded and passed to
-    // the update methods of other visualizations
 
 
     //******* TODO: EXTRA CREDIT *******
@@ -143,3 +145,5 @@ YearChart.prototype.update = function(){
     //Call the update method of brushSelection and pass the data corresponding to brush selection.
     //HINT: Use the .brush class to style the brush.
 };
+
+
