@@ -22,7 +22,7 @@ h1 {
 
 .yeartext, .tilestext, .brushtext{
     text-anchor:middle;
-    font-size: 24px;
+    font-size: 15px;
     fill: #565656;
     stroke-width: 0.1px;
 

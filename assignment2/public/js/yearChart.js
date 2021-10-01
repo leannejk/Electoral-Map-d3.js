@@ -62,26 +62,7 @@ YearChart.prototype.chooseClass = function (party) {
  */
 YearChart.prototype.update = function(){
     var self = this;
-    var clicked = function (node) {
-        //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
-        //HINT: Use .highlighted class to style the highlighted circle
-        node.setAttribute("class", "highlighted");
-        var year = String(node.YEAR);
-        var address = "data/election-results-" + year + ".csv"
-
-        //Election information corresponding to that year should be loaded and passed to
-        // the update methods of other visualizations
-
-        d3.csv(address)
-            .then(function(electionResults) {
-                self.electoralVoteChart.update(electionResults, self.colorScale);
-                self.tileChart.update(electionResults, self.colorScale);
-                self.votePercentageChart.update(electionResults);
-            });
-
-
-
-    }
+    var clicked = null;
 
     //Domain definition for global color scale
     var domain = [-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60 ];
@@ -106,22 +87,44 @@ YearChart.prototype.update = function(){
 
     var svg = self.svg
     var group = svg.append("g").attr("transform", "translate(" + (self.margin.left) + "," + self.margin.top + ")");
+    var groupText = svg.append("g").attr("transform", "translate(" + 15 + "," + self.margin.top / 2 + ")");
+
     group.selectAll("circle")
         .data(self.electionWinners)
         .enter().append("circle")
+        .attr("onClick", function() {
+            //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
+            //HINT: Use .highlighted class to style the highlighted circle
+            this.setAttribute("class", "highlighted");
+            var year = String(this.YEAR);
+            var address = "data/election-results-" + year + ".csv"
+
+            //Election information corresponding to that year should be loaded and passed to
+            // the update methods of other visualizations
+
+            d3.csv(address)
+                .then(function(electionResults) {
+                    self.electoralVoteChart.update(electionResults, self.colorScale);
+                    self.tileChart.update(electionResults, self.colorScale);
+                    self.votePercentageChart.update(electionResults);
+                });
+
+
+
+        })
         .attr("cx", function (d, i){ return i * 50 ; })
         .attr("class", function(d){return String(self.chooseClass(d.PARTY))})
         .classed("yearChart", true)
-        // .attr("onClick", clicked(this))
+
 
     //Append text information of each year right below the corresponding circle
     //HINT: Use .yeartext class to style your text elements
-    svg.selectAll("text")
+    groupText.selectAll("text")
         .data(self.electionWinners)
         .enter().append("text")
         .attr("x", function (d, i){ return i * 50 + self.margin.left - 15 ; })
         .attr("y", 50)
-        .attr("class", "yaertext")
+        .classed("yeartext", true)
         .text(function(d){return d.YEAR});
 
     //Style the chart by adding a dashed line that connects all these years.
