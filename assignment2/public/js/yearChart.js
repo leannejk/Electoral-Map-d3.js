@@ -92,11 +92,11 @@ YearChart.prototype.update = function(){
     group.selectAll("circle")
         .data(self.electionWinners)
         .enter().append("circle")
-        .attr("onClick", function() {
+        .on('click', function(d) {
             //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
             //HINT: Use .highlighted class to style the highlighted circle
-            this.setAttribute("class", "highlighted");
-            var year = String(this.YEAR);
+            this.classList.add("highlighted");
+            var year = String(d.YEAR);
             var address = "data/election-results-" + year + ".csv"
 
             //Election information corresponding to that year should be loaded and passed to
