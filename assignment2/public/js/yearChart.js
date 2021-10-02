@@ -92,16 +92,16 @@ YearChart.prototype.update = function(){
     group.selectAll("circle")
         .data(self.electionWinners)
         .enter().append("circle")
-        .on('click', function(d) {
+        .on('click', function(d, i) {
             //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
             //HINT: Use .highlighted class to style the highlighted circle
             this.classList.add("highlighted");
-            var year = String(d.YEAR);
-            var address = "data/election-results-" + year + ".csv"
+            // var address = "data/election-results-2020.csv"
+            var address = "data/election-results-" + String(i.YEAR) + ".csv"
+
 
             //Election information corresponding to that year should be loaded and passed to
             // the update methods of other visualizations
-
             d3.csv(address)
                 .then(function(electionResults) {
                     self.electoralVoteChart.update(electionResults, self.colorScale);

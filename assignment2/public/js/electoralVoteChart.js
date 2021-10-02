@@ -34,7 +34,7 @@ ElectoralVoteChart.prototype.init = function(){
  *
  * @param party an ID for the party that is being referred to.
  */
-ElectoralVoteChart.prototype.chooseClass = function (party) {
+ElectoralVoteChart.prototype.chooseClass = function(party) {
     var self = this;
     if (party == "R"){
         return "republican";
@@ -58,13 +58,87 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     var self = this;
 
     // ******* TODO: PART II *******
-
     //Group the states based on the winning party for the state;
     //then sort them based on the margin of victory
+    var republican = [];
+    var democrat = [];
+    var independent = [];
+
+    electionResult.forEach(function(d) {
+        d.R_Percentage = +d.R_Percentage;
+        d.D_Percentage = +d.D_Percentage;
+        d.I_Percentage = +d.I_Percentage;
+    });
+
+    electionResult.forEach(function (d){
+        var max = d3.max([d.R_Percentage, d.D_Percentage, d.I_Percentage]);
+        if(d.R_Percentage == max){
+            d.Party = "R";
+            republican.push(d);
+        } else if (d.D_Percentage == max){
+            d.Party = "D"
+            democrat.push(d);
+        } else {
+            d.Party = "I"
+            independent.push(d);
+        }
+    });
+
+    republican.sort(function(a, b) { return b.R_Percentage - a.R_Percentage });
+    democrat.sort(function (a,b){return b.D_Percentage - a.D_Percentage});
+    independent.sort(function (a,b){return b.I_Percentage - a.I_Percentage});
+    var data = [].concat(independent, democrat, republican);
+
 
     //Create the stacked bar chart.
     //Use the global color scale to color code the rectangles.
     //HINT: Use .electoralVotes class to style your bars.
+
+    //make scale for width:
+    var total = d3.sum(data, d => d.Total_EV);
+    var soFar = 0;
+
+    var svg = self.svg;
+    var groupText = svg.append("g").attr("transform", "translate(" + 15 + "," + self.margin.top / 2 + ")");
+
+    var selection = svg.selectAll("rect").data(data)
+
+
+    // selection
+    //     .enter().append("rect")
+    //     .merge(selection)
+    //     .attr("y", self.margin.top )
+    //     .attr("height", 10)
+    //     .transition()
+    //     .duration(3000)
+    //     .attr("class", function (d){return self.chooseClass(d.Party)})
+    //     .attr("width", function (d){(d.Total_EV / total) * 100 + "%"} )
+    //     .attr("x", function (d) {
+    //         var prev = soFar;
+    //         var current =(d.Total_EV /total) * 100;
+    //         soFar = soFar + current;
+    //         return prev + "%";
+    //     })
+
+    selection
+        .enter().append("rect")
+        .merge(selection)
+        .attr("y", self.margin.top )
+        .attr("height", 10)
+        .transition()
+        .duration(3000)
+        .attr("class", function (d){return self.chooseClass(d.Party)})
+        .attr("width", 1 / self.svgWidth )
+        .attr("x", function (d, i) {
+            i * 20
+        })
+
+    //exit:
+
+    selection.exit()
+        .remove();
+
+
 
     //Display total count of electoral votes won by the Democrat and Republican party
     //on top of the corresponding groups of bars.
