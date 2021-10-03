@@ -56,6 +56,7 @@ ElectoralVoteChart.prototype.chooseClass = function(party) {
 
 ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     var self = this;
+    console.log("in")
 
     // ******* TODO: PART II *******
     //Group the states based on the winning party for the state;
@@ -84,10 +85,11 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
         }
     });
 
-    republican.sort(function(a, b) { return b.R_Percentage - a.R_Percentage });
+    republican.sort(function(a, b) { return a.R_Percentage - b.R_Percentage });
     democrat.sort(function (a,b){return b.D_Percentage - a.D_Percentage});
     independent.sort(function (a,b){return b.I_Percentage - a.I_Percentage});
     var data = [].concat(independent, democrat, republican);
+    console.log(data)
 
 
     //Create the stacked bar chart.
@@ -96,42 +98,52 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
 
     //make scale for width:
     var total = d3.sum(data, d => d.Total_EV);
+    console.log(total)
     var soFar = 0;
-
     var svg = self.svg;
     var groupText = svg.append("g").attr("transform", "translate(" + 15 + "," + self.margin.top / 2 + ")");
-
     var selection = svg.selectAll("rect").data(data)
 
-
-    // selection
-    //     .enter().append("rect")
-    //     .merge(selection)
-    //     .attr("y", self.margin.top )
-    //     .attr("height", 10)
-    //     .transition()
-    //     .duration(3000)
-    //     .attr("class", function (d){return self.chooseClass(d.Party)})
-    //     .attr("width", function (d){(d.Total_EV / total) * 100 + "%"} )
-    //     .attr("x", function (d) {
-    //         var prev = soFar;
-    //         var current =(d.Total_EV /total) * 100;
-    //         soFar = soFar + current;
-    //         return prev + "%";
-    //     })
+    var xFirstRep;
+    var flagRep = true;
+    var xFirstDe;
+    var flagDe = true;
 
     selection
         .enter().append("rect")
         .merge(selection)
-        .attr("y", self.margin.top )
+        .attr("y", self.margin.top * 2 )
         .attr("height", 10)
         .transition()
         .duration(3000)
-        .attr("class", function (d){return self.chooseClass(d.Party)})
-        .attr("width", 1 / self.svgWidth )
-        .attr("x", function (d, i) {
-            i * 20
+        .attr("class", "electoralVotes")
+        .attr("fill", function (d){
+            if(d.Party == "D"){
+                return colorScale(-d.D_Percentage);
+            }
+            else if(d.Party == "R"){
+                return colorScale(d.R_Percentage);
+            } else return "green"
         })
+        .attr("width", function (d){return (d.Total_EV / total) * 100 + "%"} )
+        .attr("x", function (d) {
+            var prev = soFar;
+            var current =(d.Total_EV /total) * 100;
+            soFar = soFar + current;
+            if(d.Party == "R" && flagRep ) {
+                xFirstRep = prev + "%";
+                flagRep = false;
+            }
+            if(d.Party == "D" && flagDe ) {
+                xFirstDe = prev + "%";
+                flagDe = false;
+            }
+
+            return prev + "%";
+
+        })
+
+
 
     //exit:
 
@@ -144,14 +156,58 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     //on top of the corresponding groups of bars.
     //HINT: Use the .electoralVoteText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
+    var total_I = {"party" : "independent", "total" : d3.sum(independent, d => d.Total_EV), "x" : 0 + "%"}
+    var total_D = {"party": "democrat", "total" : d3.sum(democrat, d => d.Total_EV), "x" : xFirstDe}
+    var total_R = {"party" : "republican", "total" : d3.sum(republican, d => d.Total_EV), "x": xFirstRep}
+
+    var dataText;
+    if(total_I.total > 0){
+        dataText = [].concat(total_I, total_D, total_R);
+    } else{
+        dataText = [].concat(total_D, total_R);
+    }
+
+    var selectionText = svg.selectAll("text").data(dataText);
+    selectionText
+        .enter().append("text")
+        .merge(selectionText)
+        .attr("y", self.margin.top * 2 - 2)
+        .attr("class", function (d){
+            return d.Party
+        })
+        .classed("electoralVoteText", true)
+        .transition()
+        .duration(3000)
+        .text(function (d){return d.total})
+        .attr("x",function (d){
+                return d.x
+            })
+
+
+    selectionText.exit()
+        .remove();
+
+
 
     //Display a bar with minimal width in the center of the bar chart to indicate the 50% mark
     //HINT: Use .middlePoint class to style this bar.
+    svg.append("rect")
+        .attr("x", "50%" )
+        .attr("class", "middlePoint")
+        .attr("width", 1.5)
+        .attr("height", 30)
+        .attr("y", self.margin.top * 2 - 10 )
+
 
     //Just above this, display the text mentioning the total number of electoral votes required
     // to win the elections throughout the country
     //HINT: Use .electoralVotesNote class to style this text element
 
+    svg.append("text")
+        .attr("x", "50%" )
+        .attr("class", "electoralVotesNote")
+        .attr("y", self.margin.top * 2 - 12 )
+        .text("Electoral Vote: " + (Math.floor(total / 2) + 1));
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 
     //******* TODO: PART V *******

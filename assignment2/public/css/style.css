@@ -31,11 +31,11 @@ h1 {
 
 .electoralVotesNote, .votesPercentageNote{
     text-anchor:middle;
-    font-size: 24px;
+    font-size: 13px;
 }
 
 .electoralVoteText, .votesPercentageText{
-    font-size: 35px;
+    font-size: 10px;
 }
 .end{
     text-anchor:end;

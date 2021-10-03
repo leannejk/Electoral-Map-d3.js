@@ -97,6 +97,26 @@ VotePercentageChart.prototype.update = function(electionResult){
     //Use the global color scale to color code the rectangles.
     //HINT: Use .votesPercentage class to style your bars.
 
+    electionResult.forEach(function(d) {
+        d.R_Percentage = +d.R_Percentage;
+        d.D_Percentage = +d.D_Percentage;
+        d.I_Percentage = +d.I_Percentage;
+    });
+
+    electionResult.forEach(function (d){
+        var max = d3.max([d.R_Percentage, d.D_Percentage, d.I_Percentage]);
+        if(d.R_Percentage == max){
+            republican.push(d);
+        } else if (d.D_Percentage == max){
+            democrat.push(d);
+        } else {
+            independent.push(d);
+        }
+    });
+
+    var data3 = [];
+
+
     //Display the total percentage of votes won by each party
     //on top of the corresponding groups of bars.
     //HINT: Use the .votesPercentageText class to style your text elements;  Use this in combination with
