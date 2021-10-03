@@ -28,7 +28,7 @@ TileChart.prototype.init = function(){
     self.legendSvg = legend.append("svg")
         .attr("width",self.svgWidth)
         .attr("height",legendHeight)
-        .attr("transform", "translate(" + self.margin.left + ",0)")
+        .attr("transform", "translate(" + 0 + ",0)")
 
     self.svg = divTileChart.append("svg")
                         .attr("width",self.svgWidth)
@@ -119,10 +119,11 @@ TileChart.prototype.update = function(electionResult, colorScale){
 
     //Creates a legend element and assigns a scale that needs to be visualized
     self.legendSvg.append("g")
-        .attr("class", "legendQuantile");
+        .attr("class", "legendQuantile")
+        .attr("transform", "translate(" + 0 + "," + self.margin.top + ")");
 
     var legendQuantile = d3.legendColor()
-        .shapeWidth(120)
+        .shapeWidth(self.svgWidth / 10 - 2)
         .cells(10)
         .orient('horizontal')
         .scale(colorScale);
@@ -130,7 +131,10 @@ TileChart.prototype.update = function(electionResult, colorScale){
     // ******* TODO: PART IV *******
     //Tansform the legend element to appear in the center and make a call to this element for it to display.
 
+    this.legendSvg.select("g.legendQuantile").call(legendQuantile)
+
     //Lay rectangles corresponding to each state according to the 'row' and 'column' information in the data.
+
 
     //Display the state abbreviation and number of electoral votes on each of these rectangles
 

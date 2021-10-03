@@ -101,7 +101,6 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     console.log(total)
     var soFar = 0;
     var svg = self.svg;
-    var groupText = svg.append("g").attr("transform", "translate(" + 15 + "," + self.margin.top / 2 + ")");
     var selection = svg.selectAll("rect").data(data)
 
     var xFirstRep;
@@ -156,9 +155,9 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     //on top of the corresponding groups of bars.
     //HINT: Use the .electoralVoteText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
-    var total_I = {"party" : "independent", "total" : d3.sum(independent, d => d.Total_EV), "x" : 0 + "%"}
-    var total_D = {"party": "democrat", "total" : d3.sum(democrat, d => d.Total_EV), "x" : xFirstDe}
-    var total_R = {"party" : "republican", "total" : d3.sum(republican, d => d.Total_EV), "x": xFirstRep}
+    var total_I = {"party" : "I", "total" : d3.sum(independent, d => d.Total_EV), "x" : 0 + "%"}
+    var total_D = {"party": "D", "total" : d3.sum(democrat, d => d.Total_EV), "x" : xFirstDe}
+    var total_R = {"party" : "R", "total" : d3.sum(republican, d => d.Total_EV), "x": xFirstRep}
 
     var dataText;
     if(total_I.total > 0){
@@ -172,13 +171,17 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
         .enter().append("text")
         .merge(selectionText)
         .attr("y", self.margin.top * 2 - 2)
-        .attr("class", function (d){
-            return d.Party
-        })
         .classed("electoralVoteText", true)
         .transition()
         .duration(3000)
         .text(function (d){return d.total})
+        .attr("fill", function (d){
+            if(d.party == "I")
+                return "green";
+            else if(d.party == "R")
+                return "red";
+            else  return "blue"
+        })
         .attr("x",function (d){
                 return d.x
             })
@@ -207,7 +210,7 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
         .attr("x", "50%" )
         .attr("class", "electoralVotesNote")
         .attr("y", self.margin.top * 2 - 12 )
-        .text("Electoral Vote: " + (Math.floor(total / 2) + 1));
+        .text("Electoral Vote: " + (Math.floor(total / 2) + 1) + " To Win");
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 
     //******* TODO: PART V *******

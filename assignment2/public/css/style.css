@@ -34,7 +34,7 @@ h1 {
     font-size: 13px;
 }
 
-.electoralVoteText, .votesPercentageText{
+.electoralVoteText, .votesPercentageText, .candidateText{
     font-size: 10px;
 }
 .end{
@@ -63,6 +63,10 @@ h1 {
     stroke: #eee;
 }
 
+.label{
+    font-size: 10px;
+}
+
 .middlePoint{
     stroke: #eee;
 }
@@ -87,16 +91,21 @@ h1 {
     fill: #de2d26;
     color: #de2d26;
     text-anchor:end;
+    stroke: #eee;
+
 }
 .democrat{
     fill: #3182bd;
     text-anchor:start;
     color: #3182bd;
+    stroke: #eee;
+
 }
 .independent{
     fill: #45AD6A;
     color: #45AD6A;
     text-anchor:start;
+    stroke: #eee;
 }
 
 .votesPercentage{

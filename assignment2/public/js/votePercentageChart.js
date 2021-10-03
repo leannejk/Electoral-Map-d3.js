@@ -96,25 +96,66 @@ VotePercentageChart.prototype.update = function(electionResult){
     //Create the stacked bar chart.
     //Use the global color scale to color code the rectangles.
     //HINT: Use .votesPercentage class to style your bars.
-
+    var rVotes = 0;
+    var dVotes = 0;
+    var iVotes = 0;
     electionResult.forEach(function(d) {
-        d.R_Percentage = +d.R_Percentage;
-        d.D_Percentage = +d.D_Percentage;
-        d.I_Percentage = +d.I_Percentage;
+        rVotes += +d.R_Votes;
+        dVotes += +d.D_Votes;
+        iVotes += +d.I_Votes;
     });
 
-    electionResult.forEach(function (d){
-        var max = d3.max([d.R_Percentage, d.D_Percentage, d.I_Percentage]);
-        if(d.R_Percentage == max){
-            republican.push(d);
-        } else if (d.D_Percentage == max){
-            democrat.push(d);
-        } else {
-            independent.push(d);
-        }
-    });
+    var rep = {party: "republican", votes: rVotes}
+    var dem = {party: "democrat", votes: dVotes}
+    var ide = {party: "independent", votes: iVotes}
 
-    var data3 = [];
+    var data = [].concat(ide, dem, rep);
+
+    var total = d3.sum(data, d => d.votes);
+    console.log(total)
+    var svg = self.svg;
+    var selection = svg.selectAll("rect").data(data)
+
+    var soFar = 0;
+    var xFirstRep;
+    var flagRep = true;
+    var xFirstDe;
+    var flagDe = true;
+
+    selection
+        .enter().append("rect")
+        .merge(selection)
+        .attr("y", self.margin.top * 2 )
+        .attr("height", 30)
+        .transition()
+        .duration(3000)
+        .attr("class", function (d){ return d.party; })
+        .attr("width", function (d, i){
+            console.log(d.votes)
+            return (d.votes / total) * 100 + "%"} )
+        .attr("x", function (d) {
+            var prev = soFar;
+            var current =(d.votes /total) * 100;
+            soFar = soFar + current;
+            if(d.party == "republican" && flagRep ) {
+                xFirstRep = prev + "%";
+                flagRep = false;
+            }
+            if(d.party == "democrat" && flagDe ) {
+                xFirstDe = prev + "%";
+                flagDe = false;
+            }
+
+            return prev + "%";
+
+        })
+
+
+
+    //exit:
+
+    selection.exit()
+        .remove();
 
 
     //Display the total percentage of votes won by each party
@@ -122,11 +163,95 @@ VotePercentageChart.prototype.update = function(electionResult){
     //HINT: Use the .votesPercentageText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
 
+    dem.x = xFirstDe;
+    dem.text = String((dem.votes * 100 / total).toFixed(2)) + "%";
+    dem.candidate = electionResult[0].D_Nominee
+
+    rep.x = xFirstRep;
+    rep.text = String((rep.votes * 100 / total ).toFixed(2)) + "%";
+    rep.candidate = electionResult[0].R_Nominee
+
+    ide.x = "0%";
+    ide.text = String((ide.votes * 100 / total).toFixed(2)) + "%";
+    ide.candidate = electionResult[0].I_Nominee
+
+
+    var dataText;
+    if(ide.votes > 0){
+        dataText = [].concat(ide, dem, rep);
+    } else{
+        dataText = [].concat(dem, rep);
+    }
+
+    var selectionText = svg.selectAll("text.votesPercentageText").data(dataText);
+    selectionText
+        .enter().append("text")
+        .merge(selectionText)
+        .attr("y", self.margin.top * 2 - 2)
+        .classed("votesPercentageText", true)
+        .transition()
+        .duration(3000)
+        .text(function (d){return d.text})
+        .attr("fill", function (d){
+            if(d.party == "independent")
+                return "green";
+            else if(d.party == "republican")
+                return "red";
+            else  return "blue"
+        })
+        .attr("x",function (d){
+            return d.x
+        })
+
+
+    selectionText.exit()
+        .remove();
+
+    var selectionTextC = svg.selectAll("text.candidateText").data(dataText);
+
+
+    selectionTextC
+        .enter().append("text")
+        .merge(selectionTextC)
+        .attr("y", self.margin.top * 2 - 13)
+        .classed("candidateText", true)
+        .transition()
+        .duration(3000)
+        .text(function (d){return d.candidate})
+        .attr("fill", function (d){
+            if(d.party == "independent")
+                return "green";
+            else if(d.party == "republican")
+                return "red";
+            else  return "blue"
+        })
+        .attr("x",function (d){
+            return d.x
+        })
+
+
+    selectionTextC.exit()
+        .remove();
+
+
+
     //Display a bar with minimal width in the center of the bar chart to indicate the 50% mark
     //HINT: Use .middlePoint class to style this bar.
 
+    svg.append("rect")
+        .attr("x", "50%" )
+        .attr("class", "middlePoint")
+        .attr("width", 1.5)
+        .attr("height", 50)
+        .attr("y", self.margin.top * 2 - 10 )
+
     //Just above this, display the text mentioning details about this mark on top of this bar
     //HINT: Use .votesPercentageNote class to style this text element
+    svg.append("text")
+        .attr("x", "50%" )
+        .attr("class", "votesPercentageNote")
+        .attr("y", self.margin.top )
+        .text("Popular Vote: 50%");
 
     //Call the tool tip on hover over the bars to display stateName, count of electoral votes.
     //then, vote percentage and number of votes won by each party.
