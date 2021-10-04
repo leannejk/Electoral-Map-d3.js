@@ -203,8 +203,8 @@ TileChart.prototype.update = function(electionResult, colorScale){
     }
 
     electionResult.forEach(function(d) {
-        d.Row = rowColum[d.Abbreviation][0]
-        d.Column = rowColum[d.Abbreviation][1]
+        d.X = rowColum[d.Abbreviation][0]
+        d.Y = rowColum[d.Abbreviation][1]
     });
 
     var sq = 50;
@@ -216,10 +216,10 @@ TileChart.prototype.update = function(electionResult, colorScale){
     selection
         .enter().append("rect")
         .merge(selection)
-        .attr("y", function (d){return d.Column * sq} )
+        .attr("y", function (d){return d.Y * sq} )
         .attr("height", sq)
         .attr("width", sq * 1.3 )
-        .attr("x", function (d) {return d.Row * sq * 1.3})
+        .attr("x", function (d) {return d.X * sq * 1.3})
         .attr("class", "electoralVotes")
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
@@ -242,9 +242,9 @@ TileChart.prototype.update = function(electionResult, colorScale){
     selectionText
         .enter().append("text")
         .merge(selectionText)
-        .attr("y", function (d){return d.Column * sq + sq / 2})
+        .attr("y", function (d){return d.Y * sq + sq / 2})
         .attr("x",function (d){
-            return d.Row * sq * 1.3 + sq / 2;
+            return d.X * sq * 1.3 + sq / 2;
         })
         .classed("tilestextState", true)
         .text(function (d){return d.Abbreviation})
@@ -256,9 +256,9 @@ TileChart.prototype.update = function(electionResult, colorScale){
     selectionTextE
         .enter().append("text")
         .merge(selectionTextE)
-        .attr("y", function (d){return d.Column * sq + sq / 2 + 12})
+        .attr("y", function (d){return d.Y * sq + sq / 2 + 12})
         .attr("x",function (d){
-            return d.Row * sq * 1.3 + sq / 2;
+            return d.X * sq * 1.3 + sq / 2;
         })
         .classed("tilestextElectoral", true)
         .text(function(d){return parseInt(d.Total_EV)})

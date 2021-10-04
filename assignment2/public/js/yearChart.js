@@ -93,24 +93,21 @@ YearChart.prototype.update = function(){
         .data(self.electionWinners)
         .enter().append("circle")
         .on('click', function(d, i) {
-            //Clicking on any specific year should highlight that circle and  update the rest of the visualizations
-            //HINT: Use .highlighted class to style the highlighted circle
+
+            var circles = document.getElementsByTagName("circle");
+            for(var j = 0; j < circles.length; j++){
+                circles[j].classList.remove("highlighted");
+            }
             this.classList.add("highlighted");
-            // var address = "data/election-results-2020.csv"
+
             var address = "data/election-results-" + String(i.YEAR) + ".csv"
 
-
-            //Election information corresponding to that year should be loaded and passed to
-            // the update methods of other visualizations
             d3.csv(address)
                 .then(function(electionResults) {
                     self.electoralVoteChart.update(electionResults, self.colorScale);
                     self.tileChart.update(electionResults, self.colorScale);
                     self.votePercentageChart.update(electionResults);
                 });
-
-
-
         })
         .attr("cx", function (d, i){ return i * 50 ; })
         .attr("class", function(d){return String(self.chooseClass(d.PARTY))})
