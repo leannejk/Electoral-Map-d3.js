@@ -95,10 +95,6 @@ TileChart.prototype.update = function(electionResult, colorScale){
     //for reference:https://github.com/Caged/d3-tip
     //Use this tool tip element to handle any hover over the chart
 
-    electionResult.forEach(function(d) {
-        d.totalVotes = d.D_Votes + d.R_Votes + d.I_Votes
-    });
-
     electionResult.forEach(function (d){
         var max = d3.max([d.R_Percentage, d.D_Percentage, d.I_Percentage]);
         if(d.R_Percentage == max){
@@ -269,9 +265,4 @@ TileChart.prototype.update = function(electionResult, colorScale){
 
     selectionTextE.exit()
         .remove();
-
-
-    //Call the tool tip on hover over the tiles to display stateName, count of electoral votes
-    //then, vote percentage and number of votes won by each party.
-    //HINT: Use the .republican, .democrat and .independent classes to style your elements.
 };
