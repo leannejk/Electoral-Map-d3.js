@@ -95,28 +95,43 @@ TileChart.prototype.update = function(electionResult, colorScale){
     //for reference:https://github.com/Caged/d3-tip
     //Use this tool tip element to handle any hover over the chart
 
+    electionResult.forEach(function(d) {
+        d.totalVotes = d.D_Votes + d.R_Votes + d.I_Votes
+    });
+
+    electionResult.forEach(function (d){
+        var max = d3.max([d.R_Percentage, d.D_Percentage, d.I_Percentage]);
+        if(d.R_Percentage == max){
+            d.Party = "R";
+            d.State_Winner = d.R_Nominee
+        } else if (d.D_Percentage == max){
+            d.Party = "D"
+            d.State_Winner = d.D_Nominee
+        } else {
+            d.Party = "I"
+            d.State_Winner = d.I_Nominee
+        }
+    });
+
     tip = d3.tip().attr('class', 'd3-tip')
         .direction('se')
         .offset(function(event, d) {
             return [0,0];
         })
         .html(function(event, d) {
-            /* populate data in the following format
-             * tooltip_data = {
-             * "state": State,
-             * "winner":d.State_Winner
-             * "electoralVotes" : Total_EV
-             * "result":[
-             * {"nominee": D_Nominee_prop,"votecount": D_Votes,"percentage": D_Percentage,"party":"D"} ,
-             * {"nominee": R_Nominee_prop,"votecount": R_Votes,"percentage": R_Percentage,"party":"R"} ,
-             * {"nominee": I_Nominee_prop,"votecount": I_Votes,"percentage": I_Percentage,"party":"I"}
-             * ]
-             * }
-             * pass this as an argument to the tooltip_render function then,
-             * return the HTML content returned from that method.
-             * */
-            return ;
+             tooltip_data = {
+             "state": d.State,
+             "winner": d.State_Winner,
+             "electoralVotes" : d.Total_EV,
+             "result":[
+             {"nominee": d.D_Nominee,"votecount": d.D_Votes,"percentage": d.D_Percentage,"party":"D"} ,
+             {"nominee": d.R_Nominee,"votecount": d.R_Votes,"percentage": d.R_Percentage,"party":"R"} ,
+             {"nominee": d.I_Nominee,"votecount": d.I_Votes,"percentage": d.I_Percentage,"party":"I"}
+             ]}
+            return self.tooltip_render(tooltip_data);
         });
+
+
 
     //Creates a legend element and assigns a scale that needs to be visualized
     self.legendSvg.append("g")
@@ -198,6 +213,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
 
     var sq = 50;
     var svg = self.svg;
+    svg.call(tip);
 
     var selection = svg.selectAll("rect").data(electionResult)
 
@@ -209,6 +225,8 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .attr("width", sq * 1.3 )
         .attr("x", function (d) {return d.Row * sq * 1.3})
         .attr("class", "electoralVotes")
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide)
         .transition()
         .duration(3000)
         .attr("fill", function (d){
