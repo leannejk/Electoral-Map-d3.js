@@ -94,6 +94,7 @@ TileChart.prototype.update = function(electionResult, colorScale){
                         });
     //for reference:https://github.com/Caged/d3-tip
     //Use this tool tip element to handle any hover over the chart
+
     tip = d3.tip().attr('class', 'd3-tip')
         .direction('se')
         .offset(function(event, d) {
@@ -123,8 +124,8 @@ TileChart.prototype.update = function(electionResult, colorScale){
         .attr("transform", "translate(" + 0 + "," + self.margin.top + ")");
 
     var legendQuantile = d3.legendColor()
-        .shapeWidth(self.svgWidth / 10 - 2)
-        .cells(10)
+        .shapeWidth(self.svgWidth / 12 - 2)
+        .cells(12)
         .orient('horizontal')
         .scale(colorScale);
 
@@ -135,13 +136,122 @@ TileChart.prototype.update = function(electionResult, colorScale){
 
     //Lay rectangles corresponding to each state according to the 'row' and 'column' information in the data.
 
+    var rowColum = {
+        AL: [7,6],
+        AK: [0,0],
+        AZ: [2,5],
+        AR: [5,5],
+        CA: [1,4],
+        CO: [3,4],
+        CT: [10,3],
+        DE:[9,5],
+        FL:[9,7],
+        GA:[8,6],
+        HI:[1,7],
+        ID: [2,2],
+        IL:[6,2],
+        IN:[6,3],
+        IA:[5,3],
+        KS:[4,5],
+        KY:[6,4],
+        LA:[5,6],
+        ME: [0,11],
+        MD:[8,3],
+        MA:[11,2],
+        MI:[8,2],
+        MN:[5,2],
+        MS:[6,6],
+        MO:[5,4],
+        MT:[3,2],
+        NE:[4,4],
+        NV:[2,3],
+        NH:[11,1],
+        NJ:[9,4],
+        NM:[3,5],
+        NY:[9,2],
+        NC:[7,5],
+        ND:[4,2],
+        OH:[7,3],
+        OK:[4,6],
+        OR:[1,3],
+        PA:[9,3],
+        RI:[10,2],
+        SC:[8,5],
+        SD:[4,3],
+        TN:[6,5],
+        TX:[4,7],
+        UT:[2,4],
+        VT:[10,1],
+        VA:[8,4],
+        WA: [1,2],
+        WV:[7,4],
+        WI:[7,2],
+        WY:[3,3],
+        DC:[10,4],
+        ME: [11,0]
+    }
 
-    //Display the state abbreviation and number of electoral votes on each of these rectangles
+    electionResult.forEach(function(d) {
+        d.Row = rowColum[d.Abbreviation][0]
+        d.Column = rowColum[d.Abbreviation][1]
+    });
 
-    //Use global color scale to color code the tiles.
+    var sq = 50;
+    var svg = self.svg;
 
-    //HINT: Use .tile class to style your tiles;
-    // .tilestext to style the text corresponding to tiles
+    var selection = svg.selectAll("rect").data(electionResult)
+
+    selection
+        .enter().append("rect")
+        .merge(selection)
+        .attr("y", function (d){return d.Column * sq} )
+        .attr("height", sq)
+        .attr("width", sq * 1.3 )
+        .attr("x", function (d) {return d.Row * sq * 1.3})
+        .attr("class", "electoralVotes")
+        .transition()
+        .duration(3000)
+        .attr("fill", function (d){
+            if(d.Party == "D"){
+                return colorScale(-d.D_Percentage);
+            }
+            else if(d.Party == "R"){
+                return colorScale(d.R_Percentage);
+            } else return "green"
+        })
+
+    //exit:
+    selection.exit()
+        .remove();
+
+    var selectionText = svg.selectAll("text.tilestextState").data(electionResult);
+    selectionText
+        .enter().append("text")
+        .merge(selectionText)
+        .attr("y", function (d){return d.Column * sq + sq / 2})
+        .attr("x",function (d){
+            return d.Row * sq * 1.3 + sq / 2;
+        })
+        .classed("tilestextState", true)
+        .text(function (d){return d.Abbreviation})
+
+    selectionText.exit()
+        .remove();
+
+    var selectionTextE = svg.selectAll("text.tilestextElectoral").data(electionResult);
+    selectionTextE
+        .enter().append("text")
+        .merge(selectionTextE)
+        .attr("y", function (d){return d.Column * sq + sq / 2 + 12})
+        .attr("x",function (d){
+            return d.Row * sq * 1.3 + sq / 2;
+        })
+        .classed("tilestextElectoral", true)
+        .text(function(d){return parseInt(d.Total_EV)})
+
+    selectionTextE.exit()
+        .remove();
+
 
     //Call the tool tip on hover over the tiles to display stateName, count of electoral votes
     //then, vote percentage and number of votes won by each party.

@@ -56,7 +56,6 @@ ElectoralVoteChart.prototype.chooseClass = function(party) {
 
 ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     var self = this;
-    console.log("in")
 
     // ******* TODO: PART II *******
     //Group the states based on the winning party for the state;
@@ -89,7 +88,6 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
     democrat.sort(function (a,b){return b.D_Percentage - a.D_Percentage});
     independent.sort(function (a,b){return b.I_Percentage - a.I_Percentage});
     var data = [].concat(independent, democrat, republican);
-    console.log(data)
 
 
     //Create the stacked bar chart.
@@ -98,7 +96,6 @@ ElectoralVoteChart.prototype.update = function(electionResult, colorScale){
 
     //make scale for width:
     var total = d3.sum(data, d => d.Total_EV);
-    console.log(total)
     var soFar = 0;
     var svg = self.svg;
     var selection = svg.selectAll("rect").data(data)

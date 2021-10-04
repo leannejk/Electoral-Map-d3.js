@@ -54,7 +54,7 @@ VotePercentageChart.prototype.tooltip_render = function (tooltip_data) {
     var self = this;
     var text = "<ul>";
     tooltip_data.result.forEach(function(row){
-        text += "<li class = " + self.chooseClass(row.party)+ ">" + row.nominee+":\t\t"+row.votecount+"("+row.percentage+"%)" + "</li>"
+        text += "<li class = " + self.chooseClass(row.party)+ ">" + row.nominee+":\t\t"+row.votecount+"("+row.percentage+")" + "</li>"
     });
 
     return text;
@@ -68,27 +68,7 @@ VotePercentageChart.prototype.tooltip_render = function (tooltip_data) {
 VotePercentageChart.prototype.update = function(electionResult){
     var self = this;
 
-    //for reference:https://github.com/Caged/d3-tip
-    //Use this tool tip element to handle any hover over the chart
-    tip = d3.tip().attr('class', 'd3-tip')
-        .direction('s')
-        .offset(function() {
-            return [0,0];
-        })
-        .html(function(d) {
-            /* populate data in the following format
-             * tooltip_data = {
-             * "result":[
-             * {"nominee": D_Nominee_prop,"votecount": D_Votes_Total,"percentage": D_PopularPercentage,"party":"D"} ,
-             * {"nominee": R_Nominee_prop,"votecount": R_Votes_Total,"percentage": R_PopularPercentage,"party":"R"} ,
-             * {"nominee": I_Nominee_prop,"votecount": I_Votes_Total,"percentage": I_PopularPercentage,"party":"I"}
-             * ]
-             * }
-             * pass this as an argument to the tooltip_render function then,
-             * return the HTML content returned from that method.
-             * */
-            return ;
-        });
+
 
 
     // ******* TODO: PART III *******
@@ -110,11 +90,42 @@ VotePercentageChart.prototype.update = function(electionResult){
     var ide = {party: "independent", votes: iVotes}
 
     var data = [].concat(ide, dem, rep);
-
     var total = d3.sum(data, d => d.votes);
-    console.log(total)
     var svg = self.svg;
     var selection = svg.selectAll("rect").data(data)
+
+    dem.text = String((dem.votes * 100 / total).toFixed(1)) + "%";
+    dem.candidate = electionResult[0].D_Nominee
+
+    rep.text = String((rep.votes * 100 / total ).toFixed(1)) + "%";
+    rep.candidate = electionResult[0].R_Nominee
+
+    ide.text = String((ide.votes * 100 / total).toFixed(1)) + "%";
+    ide.candidate = electionResult[0].I_Nominee
+
+    //Call the tool tip on hover over the bars to display stateName, count of electoral votes.
+    //then, vote percentage and number of votes won by each party.
+
+    //for reference:https://github.com/Caged/d3-tip
+    //Use this tool tip element to handle any hover over the chart
+    tip = d3.tip().attr('class', 'd3-tip')
+        .direction('s')
+        .offset(function() {
+            return [0,0];
+        })
+        .html(function(d) {
+            var tooltip_data = {
+                "result":[
+                    {"nominee": dem.candidate,"votecount": dem.votes,"percentage": dem.text,"party":"D"} ,
+                    {"nominee": rep.candidate,"votecount": rep.votes,"percentage": rep.text,"party":"R"} ,
+                    {"nominee": ide.candidate,"votecount": ide.votes,"percentage": ide.text,"party":"I"}
+                ]
+            }
+            return self.tooltip_render(tooltip_data);
+
+        });
+
+    svg.call(tip);
 
     var soFar = 0;
     var xFirstRep;
@@ -127,11 +138,12 @@ VotePercentageChart.prototype.update = function(electionResult){
         .merge(selection)
         .attr("y", self.margin.top * 2 )
         .attr("height", 30)
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide)
         .transition()
         .duration(3000)
         .attr("class", function (d){ return d.party; })
         .attr("width", function (d, i){
-            console.log(d.votes)
             return (d.votes / total) * 100 + "%"} )
         .attr("x", function (d) {
             var prev = soFar;
@@ -152,6 +164,7 @@ VotePercentageChart.prototype.update = function(electionResult){
 
 
 
+
     //exit:
 
     selection.exit()
@@ -162,18 +175,9 @@ VotePercentageChart.prototype.update = function(electionResult){
     //on top of the corresponding groups of bars.
     //HINT: Use the .votesPercentageText class to style your text elements;  Use this in combination with
     // chooseClass to get a color based on the party wherever necessary
-
-    dem.x = xFirstDe;
-    dem.text = String((dem.votes * 100 / total).toFixed(2)) + "%";
-    dem.candidate = electionResult[0].D_Nominee
-
-    rep.x = xFirstRep;
-    rep.text = String((rep.votes * 100 / total ).toFixed(2)) + "%";
-    rep.candidate = electionResult[0].R_Nominee
-
     ide.x = "0%";
-    ide.text = String((ide.votes * 100 / total).toFixed(2)) + "%";
-    ide.candidate = electionResult[0].I_Nominee
+    dem.x = xFirstDe;
+    rep.x = xFirstRep;
 
 
     var dataText;
@@ -253,8 +257,7 @@ VotePercentageChart.prototype.update = function(electionResult){
         .attr("y", self.margin.top )
         .text("Popular Vote: 50%");
 
-    //Call the tool tip on hover over the bars to display stateName, count of electoral votes.
-    //then, vote percentage and number of votes won by each party.
+
 
     //HINT: Use the chooseClass method to style your elements based on party wherever necessary.
 

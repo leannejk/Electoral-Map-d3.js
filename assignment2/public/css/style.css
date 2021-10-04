@@ -20,7 +20,7 @@ h1 {
     stroke-width: 4;
 }
 
-.yeartext, .tilestext, .brushtext{
+.yeartext, .brushtext{
     text-anchor:middle;
     font-size: 15px;
     fill: #565656;
@@ -28,6 +28,18 @@ h1 {
 
     /*stroke: #e5e5e5;*/
 }
+.tilestextState, .tilestextElectoral{
+    font-size: 10px;
+    fill: #565656;
+    stroke-width: 0.1px;
+}
+
+/*.tilestextElectoral{*/
+/*    font-size: 10px;*/
+/*    fill: #565656;*/
+/*    stroke-width: 0.1px;*/
+/*}*/
+
 
 .electoralVotesNote, .votesPercentageNote{
     text-anchor:middle;

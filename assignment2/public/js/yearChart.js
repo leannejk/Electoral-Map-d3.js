@@ -65,7 +65,7 @@ YearChart.prototype.update = function(){
     var clicked = null;
 
     //Domain definition for global color scale
-    var domain = [-60,-55,-50,-45,-40,-35,0,35,40,55,60,63,60 ];
+    var domain = [-70,-65,-60,-55,-50,-45,0,45,50,55,60,65,70 ];
 
     //Color range for global color scale
     var range = ["#0066CC", "#0080FF", "#3399FF", "#66B2FF", "#99ccff", "#CCE5FF", "#ffcccc", "#ff9999", "#ff6666", "#ff3333", "#FF0000", "#CC0000"];
